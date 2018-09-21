@@ -1,57 +1,46 @@
-#Import
-
+#Primary Import
 import os
 import csv
 import collections
 
-# File Location
-
+#File location path set
 csvpath = os.path.join("election_data.csv")
 
-#Default Read mode
-
+#Reads the CSV in
 with open(csvpath,newline="", encoding="utf-8") as election:
 
-# Store contents
-
+#Stores CSV lines into "csvreader" and skips/removes header. Sets candidates_list list
     csvreader = csv.reader(election,delimiter=",")
-
     header = next(csvreader)
-    
-    candidates = []
+    candidates_list = []
 
-#Define row 3 as candidate
-
+# For loop through csvreader and sets row "3" as "candidate". Fills the candidates_list
     for row in csvreader:
         candidate = row[2]
+        candidates_list.append(candidate)
 
-        candidates.append(candidate)
-
-
+#Imports counter function and creates function winner(candidates_list)
 from collections import Counter
+def winner(candidates_list):
 
-def winner(candidates):
+#Convert list of candidates_list in candidate_dictionary
+    vote_count = Counter(candidates_list)
+    candidates_dictionary = {}
 
-#Convert list of candidates in cand_dictionary
+#Loops through each value in vote_count list and sets new list. Second loop fills
+    for value in vote_count.values():
+        candidates_dictionary[value] = []
 
-    votes = Counter(candidates)
+    for (key,value) in vote_count.items():
+        candidates_dictionary[value].append(key)
+    total_votes = sum(vote_count.values())
+    c = Counter(candidates_dictionary).most_common()
+    Candidate_key_Length = len(sorted(candidates_dictionary.keys(),reverse=True))
 
-    cand_dict = {}
-
-    for value in votes.values():
-        cand_dict[value] = []
-
-    for (key,value) in votes.items():
-        cand_dict[value].append(key)
-
-    total_votes = sum(votes.values())
-    c = Counter(cand_dict).most_common()
-
-    x = len(sorted(cand_dict.keys(),reverse=True))
+#Creates output text file save location. Next lines opens the file and imprints the desired output
     output = os.path.join("election_results.txt")
 
     with open(output, "w+") as file:   
-
         file.write("Election Results")
         file.write("\n")
         file.write("-----------------------")
@@ -61,21 +50,23 @@ def winner(candidates):
         file.write("-----------------------")
         file.write("\n")
 
-        for i in range(x):
-            voteByCandidate = sorted(cand_dict.keys(),reverse=True)[i]
-            votePercentage = (voteByCandidate/total_votes)*10   
-            print(cand_dict[voteByCandidate]) 
-            print(votePercentage) 
-            print(voteByCandidate)  
+#Runs loop to print desired outputs. Also calculates votes per candidate and the percentage of the overall vote. Then finds the correct winner candidate name
+        for i in range(Candidate_key_Length):
+            CandidateVotes = sorted(candidates_dictionary.keys(),reverse=True)[i]
+            Percentage = (CandidateVotes/total_votes)*10   
+            print(candidates_dictionary[CandidateVotes]) 
+            print(Percentage) 
+            print(CandidateVotes)  
             
-            file.write(f"{cand_dict[voteByCandidate]}: {votePercentage} ({voteByCandidate})")
+            file.write(f"{candidates_dictionary[CandidateVotes]}: {Percentage} ({CandidateVotes})")
 
-        Winner = sorted(cand_dict.keys(),reverse=True)[0]
+        Winner = sorted(candidates_dictionary.keys(),reverse=True)[0]
 
-        if len(cand_dict[Winner])>1:
-            print(sorted(cand_dict[Winner])[0])
+        if len(candidates_dictionary[Winner])>1:
+            print(sorted(candidates_dictionary[Winner])[0])
         else:
-            print(cand_dict[Winner][0])
-            file.write(f"Winner: {cand_dict[Winner]}")
+            print(candidates_dictionary[Winner][0])
+            file.write(f"Winner: {candidates_dictionary[Winner]}")
 
-winner(candidates)
+#Runs new created function
+winner(candidates_list)
